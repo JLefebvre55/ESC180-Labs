@@ -76,16 +76,38 @@ def most_common_frequent_word(files):
 #    should return {"EngSci homepage": "http://engsci.utoronto.ca"}
 
 def get_link_tags(html_text):
-    html_text = str(html_text)
+    '''
+    Find all link tags in an HTML text
+    '''
+    tagstarts = []
+    tagends = []
+    for i in range(len(html_text)-1):
+        if html_text[i:i+2].lower() == "<a":
+            tagstarts.append(i)
+        elif html_text[i:i+2].lower() == "/a":
+            tagends.append(i+2)
     tags = []
-    i = 0
-    while((i = html_text.index("<a")) != -1):
-        tags.append(html_text[html_text.index("<a")])
+    for tag in range(len(tagstarts)):
+        tags.append(html_text[tagstarts[tag]:tagends[tag]+1])
+    return tags
+
+def parse_tag(tag):
+    '''
+    Parse a link tag into its elements
+    '''
+    tag = str(tag)
+    firstEnd = tag.index('>')
+    firstQuote = tag.index('"')
+    return {tag[firstEnd+1:tag.index('<', firstEnd+1)]: tag[firstQuote+1:tag.index('"', firstQuote+1)]}
 
 def get_links(html_text):
     '''
     Assumes links are formatted exactly as: <a href = "link">title</a>
     '''
+    links = {}
+    for tag in get_link_tags(str(html_text).replace("\n", "")):
+        links.update(parse_tag(tag))
+    return links
 
 ###############################################################################
 
@@ -97,20 +119,22 @@ def get_links(html_text):
 #    and for-loops.
 #    Justify your answer in a comment. The signature of the function must be
 
+# k*(n^2)*log(n)
 def f(n):
-    pass
+    if(n < 1):
+        return
+    else:
+       f(n/2)
 
 
-###############################################################################
 
-
+##############################################################################
 
 
 ###############################################################################
 #  Problem 4 (15 pts)
 #
 #  This problem will be auto-graded.
-#
 #
 #  It is possible to combine the numbers 1, 5, 6, 7 with arithemtic operations
 #  to get 21 as follows: 6/(1-5/7).
@@ -122,11 +146,35 @@ def f(n):
 #
 #  For example, get_target_noparens([3, 1, 2], 7) can return "2*3+1" or "1+2*3"
 #  (either output would be fine).
-#
-#
+
+def get_all_single_ops(nums):
+    ops = []
+    # nums = list(nums)
+    for i in range(len(nums)):
+        for j in range(i+1, len(nums)):
+            ops.extend({"exp":f"{nums[i]}+{nums[j]}", "params":[i,j]})
+            ops.extend({"exp":f"{nums[i]}-{nums[j]}", "params":[i,j]})
+            ops.extend({"exp":f"{nums[j]}-{nums[i]}", "params":[i,j]})
+            ops.extend({"exp":f"{nums[i]}*{nums[j]}", "params":[i,j]})
+            if(nums[j] != 0):
+                ops.extend({"exp":f"{nums[i]}/{nums[j]}", "params":[i,j]})
+            if(nums[i] != 0):
+                ops.extend({"exp":f"{nums[j]}/{nums[i]}", "params":[i,j]})
+    return nums
+
+def get_op_combinations(nums, exps=[]):
+    if(len(exps) == 0):
+        exps.extend([str(n) for n in nums])
+    for exp in exps:
+        exp = str(num)
+        newnums = nums
+        newnums.remove(num)
+        return exp.extend(exps)
 
 def get_target_noparens(nums, target):
-    pass
+    # expression.extend(ops[0])
+    # expression.extend(ops[1]) IF not (ops0 is +- and ops1 is */)
+
 ################################################################################
 #  Problem 5 (15 pts)
 #
@@ -141,7 +189,15 @@ def get_target_noparens(nums, target):
 def get_target(nums, target):
     pass
 
+# See partial work in problem 4.
+
 ################################################################################
 
 if __name__ == "__main__":
-    most_common_frequent_word(["exams/lorem1.txt", "exams/lorem2.txt"])
+    # most_common_frequent_word(["exams/lorem1.txt", "exams/lorem2.txt"])
+    # with open("exams/webpage.html", "r") as file: 
+    #     print(get_links(file.read()))
+    n = 100000
+    f(n)
+    print(f"{n} : {steps}")
+        
